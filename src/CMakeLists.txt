@@ -25,6 +25,7 @@ set(SOURCES aktualizr.cc
             uptane/initialize.cc
             uptane/legacysecondary.cc
             uptane/managedsecondary.cc
+            uptane/partialverificationsecondary.cc
             uptane/role.cc
             uptane/root.cc
             uptane/tuf.cc
@@ -64,6 +65,7 @@ set(HEADERS aktualizr.h
             uptane/exceptions.h
             uptane/legacysecondary.h
             uptane/managedsecondary.h
+            uptane/partialverificationsecondary.h
             uptane/secondaryconfig.h
             uptane/secondaryfactory.h
             uptane/secondaryinterface.h
