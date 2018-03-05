@@ -1,17 +1,39 @@
 
 {
-	"_type" : "Snapshot",
-	"expires" : "2017-11-05T14:50:27Z",
-	"meta" : 
-	{
-		"root.json" : 
+	"signatures" : 
+	[
+		
 		{
-			"version" : 1
-		},
-		"targets.json" : 
-		{
-			"version" : 4
+			"keyid" : "63b68ad681c5dbec769af34e87a77f8503a7e64866df28113e6621f366352957",
+			"method" : "rsassa-pss-sha256",
+			"sig" : "5P0HmmAWNlEqMprckJDGsmLs/jSZ0ntAFWVCbjclMecq7sM84G1B9zCq++C4afl/BthxpbJ2v+ZVpJs0p1lYc/MKOfrGeaqs/iSZO8ldkPsfzufZbC7catrOQcQmy4MexPVC/dSdBcjG1x+CMo1GFyycIa2MksDd5iyIpo0cvC8tZ/95GhwK/+pAtNMxjW/9h6Z8XK/FBncBvIluoQJ/Hsb8MG5rABLSMpQvIKXVu54rFLZvFuqdNcrpoRqmM5h3zjUhx6UygdLdP0n4dzF7880HUqNaMuulSjz2fb4albvHuNKLKt2EJh4i/k8J4j5HVyKIVz/5GtNLEi2kBc7ypg=="
 		}
-	},
-	"version" : 4
+	],
+	"signed" : 
+	{
+		"_type" : "Snapshot",
+		"expires" : "2018-03-26T19:51:18Z",
+		"meta" : 
+		{
+			"root.json" : 
+			{
+				"hashes" : 
+				{
+					"sha256" : "fce65764040df50fa091c3bf102cecf9ee9b558d5f4f99c493bfcc7ff0941c2c"
+				},
+				"length" : 3281,
+				"version" : 1
+			},
+			"targets.json" : 
+			{
+				"hashes" : 
+				{
+					"sha256" : "929cbe392cacefb6e6389cccaf1699266449c7fa56b588b05082b9abd02f9892"
+				},
+				"length" : 6412,
+				"version" : 20
+			}
+		},
+		"version" : 20
+	}
 }

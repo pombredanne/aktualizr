@@ -82,6 +82,7 @@ TEST(storage, load_store_metadata) {
   boost::filesystem::create_directories(storage_test_dir);
   boost::movelib::unique_ptr<INvStorage> storage = Storage();
   Uptane::MetaPack stored_meta;
+
   Json::Value root_json;
   root_json["_type"] = "Root";
   root_json["consistent_snapshot"] = false;
@@ -100,8 +101,10 @@ TEST(storage, load_store_metadata) {
   root_json["roles"]["timestamp"]["threshold"] = 1;
   root_json["roles"]["timestamp"]["keyids"][0] = "firstid";
 
-  stored_meta.director_root = Uptane::Root("director", root_json);
-  stored_meta.image_root = Uptane::Root("repo", root_json);
+  Json::Value meta_root;
+  meta_root["signed"] = root_json;
+  stored_meta.director_root = Uptane::Root("director", meta_root);
+  stored_meta.image_root = Uptane::Root("repo", meta_root);
 
   Json::Value targets_json;
   targets_json["_type"] = "Targets";
@@ -114,12 +117,15 @@ TEST(storage, load_store_metadata) {
   targets_json["targets"]["file2"]["custom"]["hardware_identifier"] = "hw2";
   targets_json["targets"]["file2"]["hashes"]["sha512"] = "12ab";
   targets_json["targets"]["file2"]["length"] = 11;
-  stored_meta.director_targets = Uptane::Targets(targets_json);
-  stored_meta.image_targets = Uptane::Targets(targets_json);
+
+  Json::Value meta_targets;
+  meta_targets["signed"] = targets_json;
+  stored_meta.director_targets = Uptane::Targets(meta_targets);
+  stored_meta.image_targets = Uptane::Targets(meta_targets);
 
   Json::Value timestamp_json;
-  timestamp_json["_type"] = "Timestamp";
-  timestamp_json["expires"] = "2038-01-19T03:14:06Z";
+  timestamp_json["signed"]["_type"] = "Timestamp";
+  timestamp_json["signed"]["expires"] = "2038-01-19T03:14:06Z";
   stored_meta.image_timestamp = Uptane::TimestampMeta(timestamp_json);
 
   Json::Value snapshot_json;
@@ -129,7 +135,10 @@ TEST(storage, load_store_metadata) {
   snapshot_json["meta"]["targets.json"]["version"] = 2;
   snapshot_json["meta"]["timestamp.json"]["version"] = 3;
   snapshot_json["meta"]["snapshot.json"]["version"] = 4;
-  stored_meta.image_snapshot = Uptane::Snapshot(snapshot_json);
+
+  Json::Value meta_snapshot;
+  meta_snapshot["signed"] = snapshot_json;
+  stored_meta.image_snapshot = Uptane::Snapshot(meta_snapshot);
 
   Uptane::MetaPack loaded_meta;
 
