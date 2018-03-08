@@ -36,6 +36,8 @@ set(SOURCES aktualizr.cc
 
 # set headers used for clang format
 set(HEADERS aktualizr.h
+            asn1-cer.h
+            asn1-cerstream.h
             bootstrap.h
             channel.h
             commands.h
@@ -46,6 +48,7 @@ set(HEADERS aktualizr.h
             eventsinterpreter.h
             exceptions.h
             fsstorage.h
+            gateway.h
             gatewaymanager.h
             httpclient.h
             httpinterface.h
@@ -54,12 +57,14 @@ set(HEADERS aktualizr.h
             logging.h
             openssl_compat.h
             ostree.h
+            p11engine.h
             packagemanagerfactory.h
             packagemanagerfake.h
             packagemanagerinterface.h
             socketgateway.h
             sotauptaneclient.h
             sqlstorage.h
+            sql_utils.h
             timer.h
             types.h
             utils.h
@@ -74,52 +79,54 @@ set(HEADERS aktualizr.h
             uptane/uptanerepository.h
             uptane/virtualsecondary.h)
 
+list(APPEND OSTREE_SOURCES ostree.cc)
 if(BUILD_OSTREE)
-    list(APPEND SOURCES ostree.cc)
+    list(APPEND SOURCES ${OSTREE_SOURCES})
 endif(BUILD_OSTREE)
 
+list(APPEND DEB_SOURCES deb.cc)
 if(BUILD_DEB)
-    list(APPEND SOURCES deb.cc)
+    list(APPEND SOURCES ${DEB_SOURCES})
 endif(BUILD_DEB)
 
-
+list(APPEND P11_SOURCES p11engine.cc)
 if(BUILD_P11)
-    list(APPEND SOURCES p11engine.cc)
-    list(APPEND HEADERS p11engine.h)
+    list(APPEND SOURCES ${P11_SOURCES})
 
     if(TEST_PKCS11_MODULE_PATH)
         add_definitions(-DTEST_PKCS11_MODULE_PATH="${TEST_PKCS11_MODULE_PATH}" -DTEST_PKCS11_ENGINE_PATH="${TEST_PKCS11_ENGINE_PATH}")
     endif(TEST_PKCS11_MODULE_PATH)
 endif(BUILD_P11)
 
-if(BUILD_OPCUA)
-    set(OPEN62541_SOURCES ${PROJECT_SOURCE_DIR}/third_party/open62541/open62541.c)
-    set(OPCUABRIDGE_SOURCES opcuabridge/common.cc)
-    set(OPCUABRIDGE_HEADERS opcuabridge/boostarch.h
-                            opcuabridge/common.h
-                            opcuabridge/currenttime.h
-                            opcuabridge/ecuversionmanifest.h
-                            opcuabridge/ecuversionmanifestsigned.h
-                            opcuabridge/hash.h
-                            opcuabridge/imageblock.h
-                            opcuabridge/imagefile.h
-                            opcuabridge/image.h
-                            opcuabridge/imagerequest.h
-                            opcuabridge/metadatafile.h
-                            opcuabridge/metadatafiles.h
-                            opcuabridge/opcuabridge.h
-                            opcuabridge/signature.h
-                            opcuabridge/signed.h
-                            opcuabridge/utility.h
-                            opcuabridge/versionreport.h)
+set(OPEN62541_SOURCES ${PROJECT_SOURCE_DIR}/third_party/open62541/open62541.c)
+set(OPCUABRIDGE_SOURCES opcuabridge/common.cc)
+set(OPCUABRIDGE_HEADERS opcuabridge/boostarch.h
+                        opcuabridge/common.h
+                        opcuabridge/currenttime.h
+                        opcuabridge/ecuversionmanifest.h
+                        opcuabridge/ecuversionmanifestsigned.h
+                        opcuabridge/hash.h
+                        opcuabridge/imageblock.h
+                        opcuabridge/imagefile.h
+                        opcuabridge/image.h
+                        opcuabridge/imagerequest.h
+                        opcuabridge/metadatafile.h
+                        opcuabridge/metadatafiles.h
+                        opcuabridge/opcuabridge.h
+                        opcuabridge/signature.h
+                        opcuabridge/signed.h
+                        opcuabridge/utility.h
+                        opcuabridge/versionreport.h)
+
+if (BUILD_OPCUA)
     set_source_files_properties(opcuabridge_messaging.cc ${OPEN62541_SOURCES} ${OPCUABRIDGE_SOURCES}
-                                PROPERTIES COMPILE_FLAGS ${OPEN62541_IGNORED_WARNINGS})
-endif(BUILD_OPCUA)
+        PROPERTIES COMPILE_FLAGS ${OPEN62541_IGNORED_WARNINGS})
+    list(APPEND SOURCES ${OPCUABRIDGE_SOURCES})
+endif (BUILD_OPCUA)
 
 # set the name of the executable
 add_executable(aktualizr main.cc)
-add_library(aktualizr_static_lib STATIC ${SOURCES} ${PROJECT_SOURCE_DIR}/third_party/jsoncpp/jsoncpp.cpp
-                                        ${OPEN62541_SOURCES} ${OPCUABRIDGE_SOURCES})
+add_library(aktualizr_static_lib STATIC ${SOURCES} ${PROJECT_SOURCE_DIR}/third_party/jsoncpp/jsoncpp.cpp)
 target_include_directories(aktualizr_static_lib PUBLIC ${LIBOSTREE_INCLUDE_DIRS})
 
 target_link_libraries(aktualizr aktualizr_static_lib
@@ -139,7 +146,10 @@ if(BUILD_WITH_CODE_COVERAGE)
 endif(BUILD_WITH_CODE_COVERAGE)
 
 ################ QA RULES
-aktualizr_source_file_checks(main.cc ${SOURCES} ${HEADERS} ${OPCUABRIDGE_SOURCES} ${OPCUABRIDGE_HEADERS})
+set(ALL_CHECKS main.cc ${SOURCES} ${HEADERS} ${OPCUABRIDGE_SOURCES} ${OPCUABRIDGE_HEADERS}
+    ${DEB_SOURCES} ${OSTREE_SOURCES} ${P11_SOURCES})
+list(REMOVE_DUPLICATES ALL_CHECKS)
+aktualizr_source_file_checks(${ALL_CHECKS})
 
 ################## INSTALL RULES
 install(TARGETS aktualizr RUNTIME DESTINATION bin COMPONENT aktualizr)
